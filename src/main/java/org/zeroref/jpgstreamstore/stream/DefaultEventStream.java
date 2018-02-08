@@ -1,15 +1,15 @@
 package org.zeroref.jpgstreamstore.stream;
 
-import org.zeroref.jpgstreamstore.DomainEvent;
+import org.zeroref.jpgstreamstore.EventData;
 
 import java.util.List;
 
 public class DefaultEventStream implements EventStream {
 
-    private List<DomainEvent> events;
+    private List<EventData> events;
     private int version;
 
-    public DefaultEventStream(List<DomainEvent> anEventsList, int aVersion) {
+    public DefaultEventStream(List<EventData> anEventsList, int aVersion) {
         super();
 
         this.setEvents(anEventsList);
@@ -17,7 +17,7 @@ public class DefaultEventStream implements EventStream {
     }
 
     @Override
-    public List<DomainEvent> events() {
+    public List<EventData> events() {
         return this.events;
     }
 
@@ -26,7 +26,7 @@ public class DefaultEventStream implements EventStream {
         return this.version;
     }
 
-    private void setEvents(List<DomainEvent> anEventsList) {
+    private void setEvents(List<EventData> anEventsList) {
         this.events = anEventsList;
     }
 

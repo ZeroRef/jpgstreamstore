@@ -1,12 +1,12 @@
 package org.zeroref.jpgstreamstore.stream;
 
-import org.zeroref.jpgstreamstore.DomainEvent;
+import org.zeroref.jpgstreamstore.EventData;
 
 import java.util.List;
 
 public interface EventStream {
 
-    public List<DomainEvent> events();
+    public List<EventData> events();
 
     public int version();
 }

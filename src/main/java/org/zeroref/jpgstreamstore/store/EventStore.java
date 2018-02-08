@@ -1,17 +1,22 @@
 package org.zeroref.jpgstreamstore.store;
 
-import org.zeroref.jpgstreamstore.DomainEvent;
+import org.zeroref.jpgstreamstore.EventData;
 import org.zeroref.jpgstreamstore.stream.EventStream;
-import org.zeroref.jpgstreamstore.stream.EventStreamId;
+import org.zeroref.jpgstreamstore.stream.StreamId;
 
 import java.util.List;
 
 public interface EventStore {
-    public void appendWith(EventStreamId aStartingIdentity, List<DomainEvent> anEvents);
+    void appendToStream(StreamId streamId, int expectedVersion, List<EventData> anEvents);
 
-    public List<DispatchableDomainEvent> eventsSince(long aLastReceivedEvent);
+    void appendToStream(StreamId streamId, List<EventData> anEvents);
 
-    public EventStream eventStreamSince(EventStreamId anIdentity);
+    EventStream eventStreamSince(StreamId anIdentity, int version);
 
-    public EventStream fullEventStreamFor(EventStreamId anIdentity);
+    EventStream fullEventStreamFor(StreamId anIdentity);
+
+    void deleteStream(StreamId anIdentity);
+
+    List<StoreRecord> eventsSince(long position);
+
 }
