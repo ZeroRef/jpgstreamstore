@@ -2,8 +2,6 @@ package org.zeroref.jpgstreamstore.store;
 
 public class EventStoreException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-
     public EventStoreException(String aMessage) {
         super(aMessage);
     }

@@ -1,7 +1,7 @@
 package org.zeroref.jpgstreamstore.stream;
 
 public class AppendResult {
-    private int currentVersion = 0;
+    private int currentVersion;
 
     public AppendResult(int currentVersion) {
         this.currentVersion = currentVersion;

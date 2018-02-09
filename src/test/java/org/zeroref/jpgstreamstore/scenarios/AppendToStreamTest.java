@@ -16,8 +16,8 @@ import static org.junit.Assert.assertEquals;
 
 public class AppendToStreamTest extends SuperScenario {
 
-    StreamId stream1 = new StreamId("D1");
-    StreamId stream2 = new StreamId("D2");
+    private StreamId stream1 = new StreamId("D1");
+    private StreamId stream2 = new StreamId("D2");
 
     @Test
     public void append_first_event_will_have_version_1() {
@@ -111,7 +111,7 @@ public class AppendToStreamTest extends SuperScenario {
         contentIn.put("1", "Uno");
         EventData eventData = new EventData(contentIn);
 
-        store.appendToStream(stream1, Arrays.asList(eventData));
+        store.appendToStream(stream1, Collections.singletonList(eventData));
 
         String payload = storage.listPayloads().get(0);
         Type contentClass = new TypeToken<Map<String, String>>() {}.getType();
@@ -121,7 +121,7 @@ public class AppendToStreamTest extends SuperScenario {
     }
 
 
-    List<EventData> events(Object... el) {
+    private List<EventData> events(Object... el) {
         ArrayList<EventData> result = new ArrayList<>();
 
         for (Object i : el)
@@ -130,9 +130,7 @@ public class AppendToStreamTest extends SuperScenario {
         return result;
     }
 
-    EventData wrap(Object evt) {
-        UUID id = UUID.randomUUID();
-
+    private EventData wrap(Object evt) {
         HashMap<String, String> props = new HashMap<>();
         props.put("type", evt.getClass().getName());
         props.put("data", serializer.toJson(evt));
