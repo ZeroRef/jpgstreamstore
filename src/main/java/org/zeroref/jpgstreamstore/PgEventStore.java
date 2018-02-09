@@ -8,10 +8,7 @@ import org.zeroref.jpgstreamstore.store.EventStore;
 import org.zeroref.jpgstreamstore.store.EventStoreAppendException;
 import org.zeroref.jpgstreamstore.store.EventStoreException;
 import org.zeroref.jpgstreamstore.store.StoreRecord;
-import org.zeroref.jpgstreamstore.stream.DefaultEventStream;
-import org.zeroref.jpgstreamstore.stream.EventStream;
-import org.zeroref.jpgstreamstore.stream.ExpectedVersion;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.stream.*;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -33,7 +30,6 @@ public class PgEventStore implements EventStore {
     private DataSource dataSource;
     private Gson serializer = new GsonBuilder().create();
 
-
     public PgEventStore(String connectionString) {
         PGSimpleDataSource ds = new PGSimpleDataSource();
         ds.setUrl(connectionString);
@@ -45,24 +41,30 @@ public class PgEventStore implements EventStore {
     }
 
     @Override
-    public void appendToStream(StreamId streamId, List<EventData> anEvents) {
-        appendToStream(streamId, ExpectedVersion.Any, anEvents);
+    public AppendResult appendToStream(StreamId streamId, List<EventData> anEvents) {
+        return appendToStream(streamId, ExpectedVersion.Any, anEvents);
     }
 
     @Override
-    public void appendToStream(StreamId streamId, int expectedVersion, List<EventData> anEvents) {
+    public AppendResult appendToStream(StreamId streamId, int expectedVersion, List<EventData> anEvents) {
 
         try (Connection connection = this.connection()) {
 
             connection.setAutoCommit(false);
 
-            int index = 0;
+            if (expectedVersion == ExpectedVersion.NoStream) {
+                assertStreamDoesNotExist(streamId, connection);
+            }
+
+            int index = ExpectedVersion.NoStream == expectedVersion ? 1 : 0;
 
             for (EventData event : anEvents) {
                 this.appendEventStore(connection, streamId, index++, event, expectedVersion);
             }
 
             connection.commit();
+
+            return new AppendResult(index + expectedVersion);
 
         } catch (Throwable t1) {
             try {
@@ -71,10 +73,31 @@ public class PgEventStore implements EventStore {
                 // ignore
             }
 
+            t1.printStackTrace();
+
             throw new EventStoreAppendException(
                     "Could not append to event store because: "
                             + t1.getMessage(),
                     t1);
+        }
+    }
+
+    private void assertStreamDoesNotExist(StreamId streamId, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT count(*) FROM jpg_stream_store_log WHERE stream_name = ? ")) {
+            statement.setString(1, streamId.streamName());
+            {
+                try (ResultSet rs3 = statement.executeQuery()) {
+                    if (rs3.next()) {
+                        int count = rs3.getInt("count");
+
+                        if (count > 0) {
+                            throw new EventStoreAppendException(
+                                    "Could not append to event store because stream exists : " + streamId);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -320,7 +343,7 @@ public class PgEventStore implements EventStore {
             }.getType();
             Map<String, String> eventData = serializer.fromJson(eventBody, eventClass);
 
-            events.add(new EventData(UUID.randomUUID(), eventData));
+            events.add(new EventData(eventData));
         }
 
         return new DefaultEventStream(events, version);

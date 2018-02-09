@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Storage {
 
@@ -32,6 +34,24 @@ public class Storage {
         }
 
         return count;
+    }
+
+    public List<String> listPayloads() {
+        List<String> content = new ArrayList<>();
+
+        Statement stmt3 = null;
+        try {
+            Connection connection = dataSource.getConnection();
+            stmt3 = connection.createStatement();
+            ResultSet rs3 = stmt3.executeQuery("SELECT event_body FROM jpg_stream_store_log");
+            while (rs3.next()) {
+                content.add(rs3.getString("event_body"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return content;
     }
 
     public void state(String state) {
