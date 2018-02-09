@@ -12,6 +12,12 @@ addons:
 install:
   - mvn install -DskipTests=true -Dgpg.skip=true -Dmaven.javadoc.skip=true -B -V
 
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database sqlstreamstore;' -U postgres
+
 notifications:
   email: false
 
