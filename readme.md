@@ -7,8 +7,6 @@
 
 jpgstreamstore is a small library targeted at building scalable event-sourced applications on top of PostgreSQL. It has simple API, heavily inspired by Greg Young's Event Store.
 
-
-
 ## Features
 
 + Fully ACID compliant
@@ -31,15 +29,13 @@ Optimistic concurrency is implemented by always including stream version with ev
 ## Usage
 
 ##### Essentials
++ EventStore configuration [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S01_EventStoreConfguration.java)]
 + Writing to stream [[see](Source/Example/Scenarios/S04_Write_to_stream.cs)]
-
 + Reading from stream [[see](Source/Example/Scenarios/S05_Read_from_stream.cs)]
-
 + Optimistic concurrency [[see](Source/Example/Scenarios/S08_Concurrency_conflicts.cs)]
-
 + Replication [[see](Source/Example/Scenarios/S09_Handling_duplicates.cs)]
 
-  ​
+
 
 ## Contribute
 
@@ -49,4 +45,4 @@ This is a volunteer effort. If you use it and you like it, let us know whos-usin
 
 ## License
 
-Copyright 2017. Released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
+Copyright 2018. Released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
