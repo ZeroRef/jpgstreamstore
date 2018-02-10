@@ -114,7 +114,8 @@ public class AppendToStreamTest extends SuperScenario {
         store.appendToStream(stream1, Collections.singletonList(eventData));
 
         String payload = storage.listPayloads().get(0);
-        Type contentClass = new TypeToken<Map<String, String>>() {}.getType();
+        Type contentClass = new TypeToken<Map<String, String>>() {
+        }.getType();
         Map<String, String> contentOut = serializer.fromJson(payload, contentClass);
 
         assertEquals("Uno", contentOut.get("1"));

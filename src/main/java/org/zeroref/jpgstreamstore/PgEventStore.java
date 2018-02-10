@@ -11,11 +11,11 @@ import org.zeroref.jpgstreamstore.store.StoreRecord;
 import org.zeroref.jpgstreamstore.stream.*;
 
 import javax.sql.DataSource;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class PgEventStore implements EventStore {
 
@@ -38,6 +37,23 @@ public class PgEventStore implements EventStore {
 
     public PgEventStore(DataSource aDataSource) {
         this.dataSource = aDataSource;
+    }
+
+    public static String readResource(String filename)
+            throws IOException {
+        InputStream is = PgEventStore.class.getClassLoader().getResourceAsStream(filename);
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        StringBuffer sb = new StringBuffer();
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        br.close();
+        isr.close();
+        is.close();
+
+        return sb.toString();
     }
 
     @Override
@@ -121,7 +137,6 @@ public class PgEventStore implements EventStore {
         }
     }
 
-
     @Override
     public List<StoreRecord> eventsSince(long position) {
         try (Connection connection = this.connection()) {
@@ -147,7 +162,6 @@ public class PgEventStore implements EventStore {
                     t);
         }
     }
-
 
     @Override
     public EventStream eventStreamSince(StreamId anIdentity, int version) {
@@ -215,7 +229,6 @@ public class PgEventStore implements EventStore {
         }
     }
 
-
     @Override
     public void deleteStream(StreamId anIdentity) {
         try (Connection connection = this.connection()) {
@@ -249,10 +262,7 @@ public class PgEventStore implements EventStore {
     }
 
     public void createSchema() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource("schema.sql");
-        File file = new File(resource.getFile());
-        String content = new String(Files.readAllBytes(file.toPath()));
+        String content = readResource("schema.sql");
 
         try (Connection connection = this.connection()) {
             connection.createStatement().execute(content);

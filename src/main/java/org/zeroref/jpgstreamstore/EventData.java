@@ -1,7 +1,6 @@
 package org.zeroref.jpgstreamstore;
 
 import java.util.Map;
-import java.util.UUID;
 
 public class EventData {
     private Map<String, String> props;
