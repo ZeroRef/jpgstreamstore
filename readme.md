@@ -20,7 +20,13 @@ jpgstreamstore is a small library targeted at building scalable event-sourced ap
 + Friendly for multi-tenant designs[todo]
 + Zero transitive dependencies
 
+## Design
 
+jpgstreamstore is just a thin layer (library, not a server) on top of PostgreSQL. It implements low-level mechanics for dealing with event streams, and all heavy-weight lifting is done by underlying provider. 
+
+The api is stateless and all exposed objects are immutable, once fully constructed. jpgstreamstore doesn't dictate payload serialization protocol, so you are free to choose any protocol you want.
+
+Optimistic concurrency is implemented by always including stream version with every write, making it impossible to append to a stream without first having a latest version.  
 
 ## Usage
 
