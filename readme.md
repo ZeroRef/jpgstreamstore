@@ -7,6 +7,8 @@
 
 jpgstreamstore is a small library targeted at building scalable event-sourced applications on top of PostgreSQL. It has simple API, heavily inspired by Greg Young's Event Store.
 
+
+
 ##Features
 
 + Fully ACID compliant
@@ -18,17 +20,26 @@ jpgstreamstore is a small library targeted at building scalable event-sourced ap
 + Friendly for multi-tenant designs[todo]
 + Zero transitive dependencies
 
+
+
 ## Usage
 
 ##### Essentials
 + Writing to stream [[see](Source/Example/Scenarios/S04_Write_to_stream.cs)]
+
 + Reading from stream [[see](Source/Example/Scenarios/S05_Read_from_stream.cs)]
+
 + Optimistic concurrency [[see](Source/Example/Scenarios/S08_Concurrency_conflicts.cs)]
+
 + Replication [[see](Source/Example/Scenarios/S09_Handling_duplicates.cs)]
+
+  ​
 
 ## Contribute
 
 This is a volunteer effort. If you use it and you like it, let us know whos-using, and also help by spreading the word!
+
+
 
 ## License
 
