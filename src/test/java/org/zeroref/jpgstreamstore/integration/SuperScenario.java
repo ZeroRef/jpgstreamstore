@@ -1,4 +1,4 @@
-package org.zeroref.jpgstreamstore.scenarios;
+package org.zeroref.jpgstreamstore.integration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
