@@ -1,7 +1,6 @@
 # jPgStreamStore
 
 [![Build Status](https://travis-ci.org/ZeroRef/jpgstreamstore.svg)](https://travis-ci.org/ZeroRef/jpgstreamstore)
-[![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 *fancy, sophisticated persistence handling*
 
@@ -45,4 +44,4 @@ This is a volunteer effort. If you use it and you like it, let us know whos-usin
 
 ## License
 
-Copyright 2018. Released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
+Copyright 2018. Released under the [UNLICENSE](https://unlicense.org/UNLICENSE).
