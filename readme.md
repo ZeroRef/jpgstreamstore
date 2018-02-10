@@ -9,7 +9,7 @@ jpgstreamstore is a small library targeted at building scalable event-sourced ap
 
 
 
-##Features
+## Features
 
 + Fully ACID compliant
 + Optimistic concurrency support
