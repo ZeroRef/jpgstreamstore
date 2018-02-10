@@ -5,12 +5,26 @@
 
 *fancy, sophisticated persistence handling*
 
-## Introduction
+jpgstreamstore is a small library targeted at building scalable event-sourced applications on top of PostgreSQL. It has simple API, heavily inspired by Greg Young's Event Store.
 
-jPgStreamStore is a lightweight, zero-dependency library for handling persistence. It was designed to be as easy to use as possible, with a concise API for handling everyday use cases and the flexibility to handle everything else.
+##Features
 
-Supports Java 8 currently.
++ Fully ACID compliant
++ Optimistic concurrency support
++ Custom stream and event properties
++ Small concise API, no (callback hell, rose futures, broken promisses)
++ Global event stream for HA replication
++ Duplicate event detection (based on identity)[todo]
++ Friendly for multi-tenant designs[todo]
++ Zero transitive dependencies
 
+## Usage
+
+##### Essentials
++ Writing to stream [[see](Source/Example/Scenarios/S04_Write_to_stream.cs)]
++ Reading from stream [[see](Source/Example/Scenarios/S05_Read_from_stream.cs)]
++ Optimistic concurrency [[see](Source/Example/Scenarios/S08_Concurrency_conflicts.cs)]
++ Replication [[see](Source/Example/Scenarios/S09_Handling_duplicates.cs)]
 
 ## Contribute
 
