@@ -3,7 +3,7 @@ package org.zeroref.jpgstreamstore.scenarios;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.zeroref.jpgstreamstore.PgEventStore;
 
-public class S01_EventStoreConfguration {
+public class S01_EventStoreConfiguration {
 
     public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
 

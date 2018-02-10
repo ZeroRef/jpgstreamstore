@@ -15,4 +15,9 @@ public final class StreamId {
     private void setStreamName(String aStreamName) {
         this.streamName = aStreamName;
     }
+
+    @Override
+    public String toString() {
+        return "Stream: " + streamName;
+    }
 }
