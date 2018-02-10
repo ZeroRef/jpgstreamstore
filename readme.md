@@ -32,8 +32,8 @@ Optimistic concurrency is implemented by always including stream version with ev
 + Stream store bootstrap [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S01_EventStoreConfiguration.java)]
 + Writing to stream [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S02_WriteToStream.java)]
 + Reading from stream [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S03_ReadFromStream.java)]
-+ Optimistic concurrency [[see](Source/Example/Scenarios/S08_Concurrency_conflicts.cs)]
-+ Replication [[see](Source/Example/Scenarios/S09_Handling_duplicates.cs)]
++ Optimistic concurrency [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S04_OptimisticConcurrencyControl.java)]
++ Replication [[see](src/test/java/org/zeroref/jpgstreamstore/scenarios/S04_Replication.java)]
 
 
 
