@@ -14,21 +14,6 @@ public class SuperScenario {
     protected Storage storage;
     protected Gson serializer = new GsonBuilder().create();
 
-
-/*
-    @Rule
-    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
-
-    @Before
-    public void init() throws IOException {
-        DataSource dataSource = pg.getEmbeddedPostgres().getPostgresDatabase();
-        storage = new Storage(dataSource);
-
-        store = new PgEventStore(dataSource);
-        store.createSchema();
-    }
-*/
-
     @Before
     public void init() throws IOException {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
