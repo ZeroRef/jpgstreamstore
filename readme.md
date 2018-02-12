@@ -25,6 +25,10 @@ The api is stateless and all exposed objects are immutable, once fully construct
 
 Optimistic concurrency is implemented by always including stream version with every write, making it impossible to append to a stream without first having a latest version.  
 
+## Schema
+
+<img src="/ZeroRef/jpgstreamstore/blob/master/docs/multi-tenant.png" alt="Schema" style="max-width:100%;"/>
+
 ## Usage
 
 ##### Essentials
