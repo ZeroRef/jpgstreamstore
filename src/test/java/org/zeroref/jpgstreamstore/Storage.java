@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Storage {
 
-    DataSource dataSource = null;
+    DataSource dataSource;
 
     public Storage(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -21,11 +21,10 @@ public class Storage {
     public int countRecords() {
         int count = 0;
 
-        Statement stmt3 = null;
-        try {
-            Connection connection = dataSource.getConnection();
-            stmt3 = connection.createStatement();
-            ResultSet rs3 = stmt3.executeQuery("SELECT COUNT(*) AS count FROM jpg_stream_store_log");
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt3 = connection.createStatement();
+             ResultSet rs3 = stmt3.executeQuery("SELECT COUNT(*) AS count FROM jpg_stream_store_log")) {
+
             while (rs3.next()) {
                 count = rs3.getInt("count");
             }
@@ -39,11 +38,10 @@ public class Storage {
     public List<String> listPayloads() {
         List<String> content = new ArrayList<>();
 
-        Statement stmt3 = null;
-        try {
-            Connection connection = dataSource.getConnection();
-            stmt3 = connection.createStatement();
-            ResultSet rs3 = stmt3.executeQuery("SELECT event_body FROM jpg_stream_store_log");
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt3 = connection.createStatement();
+             ResultSet rs3 = stmt3.executeQuery("SELECT event_body FROM jpg_stream_store_log");) {
+
             while (rs3.next()) {
                 content.add(rs3.getString("event_body"));
             }
@@ -55,24 +53,15 @@ public class Storage {
     }
 
     public void state(String state) {
-        Connection connection = null;
 
-        try {
-            connection = dataSource.getConnection();
-            connection.createStatement().execute(state);
-
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(state);
         } catch (Throwable t) {
             throw new EventStoreException(
                     "Problem creating event store schema because: "
                             + t.getMessage(),
                     t);
-        } finally {
-            try {
-                if (connection != null)
-                    connection.close();
-            } catch (SQLException e) {
-                // ignore
-            }
         }
     }
 }
