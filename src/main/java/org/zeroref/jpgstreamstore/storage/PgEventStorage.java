@@ -252,12 +252,14 @@ public class PgEventStorage implements EventStore {
     public void createSchema() throws IOException {
         String logSql = readResource("create_log.sql");
 
-        String schemaName = dataSource.getCurrentSchema() == null ? "public" : dataSource.getCurrentSchema();
-        String schemaSql = "create schema if not exists " + schemaName;
-
         try (Connection conn = this.connection();
              Statement sttmt = conn.createStatement()) {
-            sttmt.execute(tenant.prepare(schemaSql));
+
+            if(dataSource.getCurrentSchema() != null){
+                String schemaSql = "create schema if not exists " + dataSource.getCurrentSchema();
+                sttmt.execute(tenant.prepare(schemaSql));
+            }
+
             sttmt.execute(tenant.prepare(logSql));
 
         } catch (Throwable t) {
