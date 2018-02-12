@@ -27,7 +27,7 @@ Optimistic concurrency is implemented by always including stream version with ev
 
 ## Schema
 
-<img src="/ZeroRef/jpgstreamstore/blob/master/docs/multi-tenant.png" alt="Schema" style="max-width:100%;"/>
+<img src="docs/multi-tenant.png" alt="Schema" style="max-width:100%;"/>
 
 ## Usage
 
