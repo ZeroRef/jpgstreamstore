@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public.jpg_stream_store_log (
+CREATE TABLE IF NOT EXISTS jpg_stream_store_log (
 	event_id SERIAL PRIMARY KEY,
 	event_body text NOT NULL,
 	stream_name varchar(100) NULL,

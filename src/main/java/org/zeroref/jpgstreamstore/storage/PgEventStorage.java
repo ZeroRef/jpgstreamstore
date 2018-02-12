@@ -20,10 +20,13 @@ public class PgEventStorage implements EventStore {
 
     private PGConnectionPoolDataSource dataSource;
     private Gson serializer = new GsonBuilder().create();
+    private PgSchemaTenant tenant;
 
     public PgEventStorage(String connectionString) {
         PGConnectionPoolDataSource ds = new PGConnectionPoolDataSource();
         ds.setUrl(connectionString);
+
+        tenant = new PgSchemaTenant(ds.getCurrentSchema());
 
         this.dataSource = ds;
     }
@@ -95,7 +98,7 @@ public class PgEventStorage implements EventStore {
     private void assertStreamDoesNotExist(StreamId streamId, Connection connection) throws SQLException {
         String sql = "SELECT count(*) FROM jpg_stream_store_log WHERE stream_name = ? ";
 
-        try (PreparedStatement sttmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement sttmt = connection.prepareStatement(tenant.prepare(sql))) {
             sttmt.setString(1, streamId.streamName());
 
             try (ResultSet rs3 = sttmt.executeQuery()) {
@@ -112,10 +115,11 @@ public class PgEventStorage implements EventStore {
     }
 
     public List<StreamId> listStreams() {
-        String sql = "select stream_name, max(stream_version) from jpg_stream_store_log group by stream_name ";
+        String sql = "select stream_name, max(stream_version) from jpg_stream_store_log " +
+                "group by stream_name ";
 
         try (Connection conn = this.connection();
-             PreparedStatement sttmt =conn.prepareStatement(sql)) {
+             PreparedStatement sttmt =conn.prepareStatement(tenant.prepare(sql))) {
 
             try (ResultSet result = sttmt.executeQuery()) {
                 return this.buildEventStreamIds(result);
@@ -135,7 +139,7 @@ public class PgEventStorage implements EventStore {
                 + "WHERE event_id > ? ORDER BY event_id";
 
         try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(sql)) {
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
 
             sttmt.setLong(1, position);
 
@@ -159,7 +163,7 @@ public class PgEventStorage implements EventStore {
                 + "WHERE stream_name = ? AND stream_version >= ? ORDER BY stream_version";
 
         try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(sql)) {
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
 
             sttmt.setString(1, anIdentity.streamName());
             sttmt.setInt(2, version);
@@ -195,7 +199,7 @@ public class PgEventStorage implements EventStore {
                 + "WHERE stream_name = ? ORDER BY stream_version";
 
         try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(sql)) {
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
 
             sttmt.setString(1, anIdentity.streamName());
 
@@ -217,7 +221,7 @@ public class PgEventStorage implements EventStore {
         String sql = "delete from jpg_stream_store_log WHERE stream_name = ? ";
 
         try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(sql)) {
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql))) {
 
             sttmt.setString(1, anIdentity.streamName());
             sttmt.execute();
@@ -235,7 +239,7 @@ public class PgEventStorage implements EventStore {
         try (Connection conn = this.connection();
              Statement sttmt = conn.createStatement()) {
 
-            sttmt.execute(sql);
+            sttmt.execute(tenant.prepare(sql));
 
         } catch (Throwable t) {
             throw new EventStoreException(
@@ -246,11 +250,15 @@ public class PgEventStorage implements EventStore {
     }
 
     public void createSchema() throws IOException {
-        String content = readResource("create_log.sql");
+        String logSql = readResource("create_log.sql");
+
+        String schemaName = dataSource.getCurrentSchema() == null ? "public" : dataSource.getCurrentSchema();
+        String schemaSql = "create schema if not exists " + schemaName;
 
         try (Connection conn = this.connection();
              Statement sttmt = conn.createStatement()) {
-            sttmt.execute(content);
+            sttmt.execute(tenant.prepare(schemaSql));
+            sttmt.execute(tenant.prepare(logSql));
 
         } catch (Throwable t) {
             throw new EventStoreException(
@@ -259,6 +267,8 @@ public class PgEventStorage implements EventStore {
                     t);
         }
     }
+
+
 
     private void appendEventStore(
             Connection conn,
@@ -270,21 +280,20 @@ public class PgEventStorage implements EventStore {
         PreparedStatement ps;
 
         if (expectedVersion == ExpectedVersion.Any) {
-            ps = conn
-                    .prepareStatement(
-                            "INSERT INTO jpg_stream_store_log " +
-                                    "(event_body, stream_name, stream_version)" +
-                                    "VALUES(?, ?, (select coalesce(max(stream_version+1),1) from jpg_stream_store_log where stream_name = ?) )");
+            String sql = "INSERT INTO jpg_stream_store_log " +
+                    "(event_body, stream_name, stream_version)" +
+                    "VALUES(?, ?, (select coalesce(max(stream_version+1),1) from jpg_stream_store_log " +
+                    "where stream_name = ?) )";
+            ps = conn.prepareStatement(tenant.prepare(sql));
 
             ps.setString(1, serializer.toJson(aEventData.getProps()));
             ps.setString(2, anIdentity.streamName());
             ps.setString(3, anIdentity.streamName());
         } else {
-            ps = conn
-                    .prepareStatement(
-                            "INSERT INTO jpg_stream_store_log " +
-                                    "(event_body, stream_name, stream_version)" +
-                                    "VALUES(?, ?, ?)");
+            String sql = "INSERT INTO jpg_stream_store_log " +
+                    "(event_body, stream_name, stream_version)" +
+                    "VALUES(?, ?, ?)";
+            ps = conn.prepareStatement(tenant.prepare(sql));
 
             ps.setString(1, serializer.toJson(aEventData.getProps()));
             ps.setString(2, anIdentity.streamName());

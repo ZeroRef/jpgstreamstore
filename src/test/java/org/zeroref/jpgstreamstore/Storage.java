@@ -1,6 +1,8 @@
 package org.zeroref.jpgstreamstore;
 
-import javax.sql.DataSource;
+import org.postgresql.ds.PGSimpleDataSource;
+import org.zeroref.jpgstreamstore.storage.PgSchemaTenant;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,18 +12,31 @@ import java.util.List;
 
 public class Storage {
 
-    DataSource dataSource;
+    PGSimpleDataSource dataSource;
+    PgSchemaTenant tenant;
 
-    public Storage(DataSource dataSource) {
+    public Storage(PGSimpleDataSource dataSource) {
         this.dataSource = dataSource;
+        this.tenant = new PgSchemaTenant(dataSource.getCurrentSchema());
+
+        dropLogIfExists();
+    }
+
+    private void dropLogIfExists() {
+        String sql = "DROP TABLE IF EXISTS jpg_stream_store_log";
+        state(tenant.prepare(sql));
     }
 
     public int countRecords() {
         int count = 0;
 
+        String sql = "SELECT COUNT(*) AS count FROM jpg_stream_store_log";
+
+        String prepare = tenant.prepare(sql);
+
         try (Connection connection = dataSource.getConnection();
              Statement stmt3 = connection.createStatement();
-             ResultSet rs3 = stmt3.executeQuery("SELECT COUNT(*) AS count FROM jpg_stream_store_log")) {
+             ResultSet rs3 = stmt3.executeQuery(prepare)) {
 
             while (rs3.next()) {
                 count = rs3.getInt("count");
@@ -36,9 +51,13 @@ public class Storage {
     public List<String> listPayloads() {
         List<String> content = new ArrayList<>();
 
+        String sql = "SELECT event_body FROM jpg_stream_store_log";
+
+        String prepare = tenant.prepare(sql);
+
         try (Connection connection = dataSource.getConnection();
              Statement stmt3 = connection.createStatement();
-             ResultSet rs3 = stmt3.executeQuery("SELECT event_body FROM jpg_stream_store_log");) {
+             ResultSet rs3 = stmt3.executeQuery(prepare)) {
 
             while (rs3.next()) {
                 content.add(rs3.getString("event_body"));

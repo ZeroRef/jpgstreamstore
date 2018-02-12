@@ -14,7 +14,7 @@ jpgstreamstore is a small library targeted at building scalable event-sourced ap
 + Small concise API, no (callback hell, rose futures, broken promisses)
 + Global event stream for HA replication
 + Duplicate event detection (based on identity)[todo]
-+ Friendly for multi-tenant designs[todo]
++ Friendly for multi-tenant designs
 + Zero transitive dependencies
 
 ## Design

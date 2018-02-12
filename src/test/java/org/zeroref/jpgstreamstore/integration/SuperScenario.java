@@ -24,7 +24,6 @@ public class SuperScenario {
         dataSource.setUrl(URL);
 
         storage = new Storage(dataSource);
-        storage.state("DROP TABLE IF EXISTS jpg_stream_store_log");
 
         store = new PgEventStorage(URL);
         store.createSchema();
