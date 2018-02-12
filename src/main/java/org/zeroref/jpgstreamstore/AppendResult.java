@@ -1,4 +1,4 @@
-package org.zeroref.jpgstreamstore.stream;
+package org.zeroref.jpgstreamstore;
 
 public class AppendResult {
     private int currentVersion;

@@ -1,9 +1,9 @@
 package org.zeroref.jpgstreamstore.scenarios;
 
 import org.zeroref.jpgstreamstore.EventData;
-import org.zeroref.jpgstreamstore.PgEventStore;
-import org.zeroref.jpgstreamstore.store.StoreRecord;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.storage.PgEventStorage;
+import org.zeroref.jpgstreamstore.StoreRecord;
+import org.zeroref.jpgstreamstore.StreamId;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class S04_Replication {
     public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
 
     public static void main(String[] args ) throws Exception {
-        PgEventStore store = new PgEventStore(PG_URL);
+        PgEventStorage store = new PgEventStorage(PG_URL);
         store.createSchema();
 
         try(Replication replication = new Replication(store)){
@@ -32,10 +32,10 @@ public class S04_Replication {
     }
 
     static class Replication implements Closeable{
-        private PgEventStore store;
+        private PgEventStorage store;
         private Thread runner;
 
-        Replication(PgEventStore store) {
+        Replication(PgEventStorage store) {
             this.store = store;
 
             runner = new Thread(() -> {
@@ -81,7 +81,7 @@ public class S04_Replication {
 
 
 
-    private static void simulate1append(PgEventStore store) {
+    private static void simulate1append(PgEventStorage store) {
         StreamId streamId = new StreamId("user/1");
         EventData eventData = new EventData();
         eventData.set("type", "human-dna");

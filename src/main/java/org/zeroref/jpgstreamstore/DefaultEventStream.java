@@ -1,6 +1,4 @@
-package org.zeroref.jpgstreamstore.stream;
-
-import org.zeroref.jpgstreamstore.EventData;
+package org.zeroref.jpgstreamstore;
 
 import java.util.List;
 

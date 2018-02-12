@@ -1,16 +1,11 @@
-package org.zeroref.jpgstreamstore;
+package org.zeroref.jpgstreamstore.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.zeroref.jpgstreamstore.store.EventStore;
-import org.zeroref.jpgstreamstore.store.EventStoreAppendException;
-import org.zeroref.jpgstreamstore.store.EventStoreException;
-import org.zeroref.jpgstreamstore.store.StoreRecord;
-import org.zeroref.jpgstreamstore.stream.*;
+import org.postgresql.ds.PGConnectionPoolDataSource;
+import org.zeroref.jpgstreamstore.*;
 
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,19 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PgEventStore implements EventStore {
+public class PgEventStorage implements EventStore {
 
-    private DataSource dataSource;
+    private PGConnectionPoolDataSource dataSource;
     private Gson serializer = new GsonBuilder().create();
 
-    public PgEventStore(String connectionString) {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
+    public PgEventStorage(String connectionString) {
+        PGConnectionPoolDataSource ds = new PGConnectionPoolDataSource();
         ds.setUrl(connectionString);
-        this.dataSource = ds;
-    }
 
-    public PgEventStore(DataSource aDataSource) {
-        this.dataSource = aDataSource;
+        this.dataSource = ds;
     }
 
     public static String readResource(String filename)
@@ -41,7 +33,7 @@ public class PgEventStore implements EventStore {
 
         StringBuffer sb = new StringBuffer();
 
-        try(InputStream is = PgEventStore.class.getClassLoader().getResourceAsStream(filename);
+        try(InputStream is = PgEventStorage.class.getClassLoader().getResourceAsStream(filename);
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr)){
             String line;
@@ -140,8 +132,7 @@ public class PgEventStore implements EventStore {
     @Override
     public List<StoreRecord> eventsSince(long position) {
         String sql = "SELECT event_id, event_body, stream_name, stream_version FROM jpg_stream_store_log "
-                + "WHERE event_id > ? "
-                + "ORDER BY event_id";
+                + "WHERE event_id > ? ORDER BY event_id";
 
         try (Connection conn = this.connection();
              PreparedStatement sttmt = conn.prepareStatement(sql)) {
@@ -165,8 +156,7 @@ public class PgEventStore implements EventStore {
     public EventStream eventStreamSince(StreamId anIdentity, int version) {
 
         String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
-                + "WHERE stream_name = ? AND stream_version >= ? "
-                + "ORDER BY stream_version";
+                + "WHERE stream_name = ? AND stream_version >= ? ORDER BY stream_version";
 
         try (Connection conn = this.connection();
              PreparedStatement sttmt = conn.prepareStatement(sql)) {
@@ -202,8 +192,7 @@ public class PgEventStore implements EventStore {
     @Override
     public EventStream fullEventStreamFor(StreamId anIdentity) {
         String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
-                + "WHERE stream_name = ? "
-                + "ORDER BY stream_version";
+                + "WHERE stream_name = ? ORDER BY stream_version";
 
         try (Connection conn = this.connection();
              PreparedStatement sttmt = conn.prepareStatement(sql)) {
@@ -225,8 +214,7 @@ public class PgEventStore implements EventStore {
 
     @Override
     public void deleteStream(StreamId anIdentity) {
-        String sql = "delete from jpg_stream_store_log "
-                + "WHERE stream_name = ? ";
+        String sql = "delete from jpg_stream_store_log WHERE stream_name = ? ";
 
         try (Connection conn = this.connection();
              PreparedStatement sttmt = conn.prepareStatement(sql)) {
@@ -258,7 +246,7 @@ public class PgEventStore implements EventStore {
     }
 
     public void createSchema() throws IOException {
-        String content = readResource("schema.sql");
+        String content = readResource("create_log.sql");
 
         try (Connection conn = this.connection();
              Statement sttmt = conn.createStatement()) {

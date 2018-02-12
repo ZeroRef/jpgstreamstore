@@ -1,9 +1,9 @@
 package org.zeroref.jpgstreamstore.integration;
 
 import org.junit.Test;
-import org.zeroref.jpgstreamstore.store.EventStoreException;
-import org.zeroref.jpgstreamstore.stream.EventStream;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.EventStoreException;
+import org.zeroref.jpgstreamstore.EventStream;
+import org.zeroref.jpgstreamstore.StreamId;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;

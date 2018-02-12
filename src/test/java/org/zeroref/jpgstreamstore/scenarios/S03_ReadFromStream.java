@@ -2,9 +2,9 @@ package org.zeroref.jpgstreamstore.scenarios;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.zeroref.jpgstreamstore.EventData;
-import org.zeroref.jpgstreamstore.PgEventStore;
-import org.zeroref.jpgstreamstore.stream.EventStream;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.storage.PgEventStorage;
+import org.zeroref.jpgstreamstore.EventStream;
+import org.zeroref.jpgstreamstore.StreamId;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ public class S03_ReadFromStream {
     public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
 
     public static void main(String[] args ) throws Exception {
-        PgEventStore store = new PgEventStore(PG_URL);
+        PgEventStorage store = new PgEventStorage(PG_URL);
         store.createSchema();
 
         prepareState();

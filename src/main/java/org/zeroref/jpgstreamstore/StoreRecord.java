@@ -1,4 +1,4 @@
-package org.zeroref.jpgstreamstore.store;
+package org.zeroref.jpgstreamstore;
 
 public class StoreRecord {
 

@@ -4,10 +4,10 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.Test;
 import org.zeroref.jpgstreamstore.EventData;
 import org.zeroref.jpgstreamstore.events.RndEventData;
-import org.zeroref.jpgstreamstore.store.EventStoreAppendException;
-import org.zeroref.jpgstreamstore.stream.AppendResult;
-import org.zeroref.jpgstreamstore.stream.ExpectedVersion;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.EventStoreAppendException;
+import org.zeroref.jpgstreamstore.AppendResult;
+import org.zeroref.jpgstreamstore.ExpectedVersion;
+import org.zeroref.jpgstreamstore.StreamId;
 
 import java.lang.reflect.Type;
 import java.util.*;

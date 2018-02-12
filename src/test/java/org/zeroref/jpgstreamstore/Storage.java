@@ -1,7 +1,5 @@
 package org.zeroref.jpgstreamstore;
 
-import org.zeroref.jpgstreamstore.store.EventStoreException;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;

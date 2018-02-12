@@ -1,7 +1,7 @@
 package org.zeroref.jpgstreamstore.integration;
 
 import org.junit.Test;
-import org.zeroref.jpgstreamstore.stream.StreamId;
+import org.zeroref.jpgstreamstore.StreamId;
 
 import java.util.List;
 
