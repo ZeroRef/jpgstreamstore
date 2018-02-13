@@ -1,6 +1,7 @@
 package org.zeroref.jpgstreamstore.scenarios;
 
 import org.zeroref.jpgstreamstore.EventData;
+import org.zeroref.jpgstreamstore.events.RndEventData;
 import org.zeroref.jpgstreamstore.storage.PgEventStorage;
 import org.zeroref.jpgstreamstore.StreamId;
 
@@ -15,9 +16,9 @@ public class S02_WriteToStream {
         store.createSchema();
 
         StreamId streamId = new StreamId("user/1");
-        EventData eventData = new EventData();
-        eventData.set("type", "human-dna");
-        eventData.set("data", "423423423493487293749287492");
+        EventData eventData = new EventData(new RndEventData());
+        eventData.setHeader("type", "human-dna");
+        eventData.setHeader("data", "423423423493487293749287492");
 
         store.appendToStream(streamId, Arrays.asList(eventData));
     }

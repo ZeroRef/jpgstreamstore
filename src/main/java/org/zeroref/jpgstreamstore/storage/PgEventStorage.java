@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -281,6 +282,8 @@ public class PgEventStorage implements EventStore {
 
         PreparedStatement ps;
 
+        wrap(aEventData);
+
         if (expectedVersion == ExpectedVersion.Any) {
             String sql = "INSERT INTO jpg_stream_store_log " +
                     "(event_body, stream_name, stream_version)" +
@@ -288,7 +291,7 @@ public class PgEventStorage implements EventStore {
                     "where stream_name = ?) )";
             ps = conn.prepareStatement(tenant.prepare(sql));
 
-            ps.setString(1, serializer.toJson(aEventData.getProps()));
+            ps.setString(1, serializer.toJson(aEventData.getHeaders()));
             ps.setString(2, anIdentity.streamName());
             ps.setString(3, anIdentity.streamName());
         } else {
@@ -297,7 +300,7 @@ public class PgEventStorage implements EventStore {
                     "VALUES(?, ?, ?)";
             ps = conn.prepareStatement(tenant.prepare(sql));
 
-            ps.setString(1, serializer.toJson(aEventData.getProps()));
+            ps.setString(1, serializer.toJson(aEventData.getHeaders()));
             ps.setString(2, anIdentity.streamName());
             ps.setInt(3, expectedVersion + anIndex);
         }
@@ -347,9 +350,11 @@ public class PgEventStorage implements EventStore {
 
             Type eventClass = new TypeToken<Map<String, String>>() {
             }.getType();
-            Map<String, String> eventData = serializer.fromJson(eventBody, eventClass);
+            Map<String, String> headers = serializer.fromJson(eventBody, eventClass);
 
-            events.add(new EventData(eventData));
+            Object body = unwrap(headers);
+
+            events.add(new EventData(headers, body));
         }
 
         return new DefaultEventStream(events, version);
@@ -365,5 +370,26 @@ public class PgEventStorage implements EventStore {
         }
 
         return conn;
+    }
+
+    private void wrap(EventData evt) {
+        Object body = evt.getBody();
+        evt.setHeader("type", body.getClass().getName());
+        evt.setHeader("data", serializer.toJson(body));
+    }
+
+    private Object unwrap(Map<String, String> dataProps) {
+        String data = dataProps.get("data");
+        String type = dataProps.get("type");
+        Class<Object> eventClass;
+        try {
+            eventClass = (Class<Object>) Class.forName(type);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+
+            throw new IllegalStateException("Unable to load type: " + type);
+        }
+
+        return serializer.fromJson(data, eventClass);
     }
 }

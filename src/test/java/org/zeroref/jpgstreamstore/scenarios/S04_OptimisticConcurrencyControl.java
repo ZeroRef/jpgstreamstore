@@ -1,6 +1,7 @@
 package org.zeroref.jpgstreamstore.scenarios;
 
 import org.zeroref.jpgstreamstore.EventData;
+import org.zeroref.jpgstreamstore.events.RndEventData;
 import org.zeroref.jpgstreamstore.storage.PgEventStorage;
 import org.zeroref.jpgstreamstore.StreamId;
 
@@ -26,8 +27,8 @@ public class S04_OptimisticConcurrencyControl {
     }
 
     private static List<EventData> newEvt() {
-        EventData eventData = new EventData();
-        eventData.set("data", new Date().toString());
+        EventData eventData = new EventData(new RndEventData());
+        eventData.setHeader("data", new Date().toString());
         return Arrays.asList(eventData);
     }
 }

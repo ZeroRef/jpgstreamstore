@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.zeroref.jpgstreamstore.*;
+import org.zeroref.jpgstreamstore.events.RndEventData;
 import org.zeroref.jpgstreamstore.storage.PgEventStorage;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class MultiTenantTests {
 
     @Test
     public void append_for_tenant() {
-        List<EventData> eventData = Arrays.asList(new EventData());
+        List<EventData> eventData = Arrays.asList(new EventData(new RndEventData()));
         store.appendToStream(new StreamId("a"), 0, eventData);
 
         assertEquals(1, storage.countRecords());
@@ -65,7 +66,7 @@ public class MultiTenantTests {
     @Test
     public void eventStreamSince_for_tenant() {
         storage.state(
-                "INSERT INTO tenant01.jpg_stream_store_log VALUES(1, '{}', 'D1', 1);"
+                "INSERT INTO tenant01.jpg_stream_store_log VALUES(1, '{\"data\":\"{}\",\"type\":\"java.lang.Object\"}', 'D1', 1);"
         );
 
         EventStream stream = store.eventStreamSince(new StreamId("D1"), 1);
@@ -76,7 +77,7 @@ public class MultiTenantTests {
     @Test
     public void fullEventStreamFor_got_tenant() {
         storage.state(
-                "INSERT INTO tenant01.jpg_stream_store_log VALUES(1, '{}', 'D1', 1);"
+                "INSERT INTO tenant01.jpg_stream_store_log VALUES(1, '{\"data\":\"{}\",\"type\":\"java.lang.Object\"}', 'D1', 1);"
         );
 
         EventStream stream = store.fullEventStreamFor(new StreamId("D1"));

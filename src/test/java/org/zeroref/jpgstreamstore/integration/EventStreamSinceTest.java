@@ -14,9 +14,9 @@ public class EventStreamSinceTest extends SuperScenario {
     @Test
     public void will_pick_from_known_position() {
         storage.state(
-                "INSERT INTO jpg_stream_store_log VALUES(1, '{}', 'D1', 1);" +
-                        "INSERT INTO jpg_stream_store_log VALUES(2, '{}', 'D1', 2);" +
-                        "INSERT INTO jpg_stream_store_log VALUES(3, '{}', 'D1', 3);"
+                "INSERT INTO jpg_stream_store_log VALUES(1, '{\"data\":\"{}\",\"type\":\"java.lang.Object\"}', 'D1', 1);" +
+                        "INSERT INTO jpg_stream_store_log VALUES(2, '{\"data\":\"{}\",\"type\":\"java.lang.Object\"}', 'D1', 2);" +
+                        "INSERT INTO jpg_stream_store_log VALUES(3, '{\"data\":\"{}\",\"type\":\"java.lang.Object\"}', 'D1', 3);"
         );
 
         EventStream stream = store.eventStreamSince(new StreamId("D1"), 2);

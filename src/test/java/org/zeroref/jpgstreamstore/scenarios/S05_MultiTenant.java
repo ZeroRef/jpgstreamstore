@@ -2,6 +2,7 @@ package org.zeroref.jpgstreamstore.scenarios;
 
 import org.zeroref.jpgstreamstore.EventData;
 import org.zeroref.jpgstreamstore.StreamId;
+import org.zeroref.jpgstreamstore.events.RndEventData;
 import org.zeroref.jpgstreamstore.storage.PgEventStorage;
 
 import java.io.IOException;
@@ -20,14 +21,14 @@ public class S05_MultiTenant {
 
 
 
-        EventData auditR = new EventData();
-        auditR.set("action", "authorized-transfer-10000");
+        EventData auditR = new EventData(new RndEventData());
+        auditR.setHeader("action", "authorized-transfer-10000");
 
         auditStore.appendToStream(new StreamId("user/1"), Arrays.asList(auditR));
 
 
-        EventData transferR = new EventData();
-        transferR.set("transaction", "from-ac100-to-ac300-send-3000USD");
+        EventData transferR = new EventData(new RndEventData());
+        transferR.setHeader("transaction", "from-ac100-to-ac300-send-3000USD");
 
         billingStore.appendToStream(new StreamId("user/1"), Arrays.asList(transferR));
     }
