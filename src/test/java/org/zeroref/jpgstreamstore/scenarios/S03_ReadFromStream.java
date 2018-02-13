@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class S03_ReadFromStream {
-    public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
+    public static final String PG_URL = "jdbc:postgresql://localhost:5432/jpgstreamstore";
 
     public static void main(String[] args ) throws Exception {
         PgEventStorage store = new PgEventStorage(PG_URL);

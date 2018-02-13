@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class S04_Replication {
-    public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
+    public static final String PG_URL = "jdbc:postgresql://localhost:5432/jpgstreamstore";
 
     public static void main(String[] args ) throws Exception {
         PgEventStorage store = new PgEventStorage(PG_URL);

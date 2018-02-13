@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class MultiTenantTests {
-    public static final String URL = "jdbc:postgresql://localhost:5432/sqlstreamstore?currentSchema=tenant01";
+    public static final String URL = "jdbc:postgresql://localhost:5432/jpgstreamstore?currentSchema=tenant01";
     protected PgEventStorage store;
     protected Storage storage;
 

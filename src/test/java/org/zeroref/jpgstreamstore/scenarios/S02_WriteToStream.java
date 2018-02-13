@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class S02_WriteToStream {
-    public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
+    public static final String PG_URL = "jdbc:postgresql://localhost:5432/jpgstreamstore";
 
     public static void main(String[] args ) throws IOException {
         PgEventStorage store = new PgEventStorage(PG_URL);

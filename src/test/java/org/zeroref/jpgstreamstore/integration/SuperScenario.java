@@ -12,7 +12,7 @@ import org.zeroref.jpgstreamstore.integration.checkers.ConnectionLeaksWatchDog;
 import java.io.IOException;
 
 public class SuperScenario {
-    public static final String URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
+    public static final String URL = "jdbc:postgresql://localhost:5432/jpgstreamstore";
     protected PgEventStorage store;
     protected Storage storage;
     protected Gson serializer = new GsonBuilder().create();

@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 public class S04_OptimisticConcurrencyControl {
-    public static final String PG_URL = "jdbc:postgresql://localhost:5432/sqlstreamstore";
+    public static final String PG_URL = "jdbc:postgresql://localhost:5432/jpgstreamstore";
 
     public static void main(String[] args ) throws IOException {
         PgEventStorage store = new PgEventStorage(PG_URL);
