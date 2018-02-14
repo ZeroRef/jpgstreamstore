@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.zeroref.jpgstreamstore.EventData;
 import org.zeroref.jpgstreamstore.EventStream;
 import org.zeroref.jpgstreamstore.StreamId;
-import sun.jvm.hotspot.debugger.cdbg.BaseClass;
 
 import java.util.List;
 
