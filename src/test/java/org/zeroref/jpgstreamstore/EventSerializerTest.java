@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.junit.Test;
 import org.zeroref.jpgstreamstore.events.SentenceEventData;
 import org.zeroref.jpgstreamstore.storage.PgEventStorage;
+import org.zeroref.jpgstreamstore.storage.PgManageEventStore;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class EventSerializerTest {
     @Test
     public void can_read_schema_resource()
             throws IOException {
-        String schema = PgEventStorage.readResource("create_log.sql");
+        String schema = PgManageEventStore.readResource("create_log.sql");
         System.out.println(schema);
         assertThat(schema, is(notNullValue()));
     }

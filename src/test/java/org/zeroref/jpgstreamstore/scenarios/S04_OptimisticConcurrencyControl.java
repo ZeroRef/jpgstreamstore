@@ -15,7 +15,7 @@ public class S04_OptimisticConcurrencyControl {
 
     public static void main(String[] args ) throws IOException {
         PgEventStorage store = new PgEventStorage(PG_URL);
-        store.createSchema();
+        store.advanced().createSchema();
 
         StreamId streamId = new StreamId("user/1");
 

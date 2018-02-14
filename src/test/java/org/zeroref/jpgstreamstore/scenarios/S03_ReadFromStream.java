@@ -15,7 +15,7 @@ public class S03_ReadFromStream {
 
     public static void main(String[] args ) throws Exception {
         PgEventStorage store = new PgEventStorage(PG_URL);
-        store.createSchema();
+        store.advanced().createSchema();
 
         prepareState();
 

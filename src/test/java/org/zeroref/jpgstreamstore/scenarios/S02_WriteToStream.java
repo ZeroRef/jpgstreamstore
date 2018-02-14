@@ -13,7 +13,7 @@ public class S02_WriteToStream {
 
     public static void main(String[] args ) throws IOException {
         PgEventStorage store = new PgEventStorage(PG_URL);
-        store.createSchema();
+        store.advanced().createSchema();
 
         StreamId streamId = new StreamId("user/1");
         EventData eventData = new EventData(new RndEventData());

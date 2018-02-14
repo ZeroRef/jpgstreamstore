@@ -3,50 +3,29 @@ package org.zeroref.jpgstreamstore.storage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.postgresql.ds.PGConnectionPoolDataSource;
 import org.zeroref.jpgstreamstore.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PgEventStorage implements EventStore {
-
-    private PGConnectionPoolDataSource dataSource;
-    private Gson serializer = new GsonBuilder().create();
     private PgSchemaTenant tenant;
+    private PgConnectionFactory connections;
+    private ManageEventStore manageEventStore;
+    private Gson serializer = new GsonBuilder().create();
 
     public PgEventStorage(String connectionString) {
-        PGConnectionPoolDataSource ds = new PGConnectionPoolDataSource();
-        ds.setUrl(connectionString);
-
-        tenant = new PgSchemaTenant(ds.getCurrentSchema());
-
-        this.dataSource = ds;
+        this.connections = new PgConnectionFactory(connectionString);
+        this.tenant = connections.getTenant();
+        this.manageEventStore = new PgManageEventStore(connections);
     }
 
-    public static String readResource(String filename)
-            throws IOException {
-
-        StringBuffer sb = new StringBuffer();
-
-        try(InputStream is = PgEventStorage.class.getClassLoader().getResourceAsStream(filename);
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr)){
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-
-        return sb.toString();
+    @Override
+    public ManageEventStore advanced() {
+        return manageEventStore;
     }
 
     @Override
@@ -57,7 +36,7 @@ public class PgEventStorage implements EventStore {
     @Override
     public AppendResult appendToStream(StreamId streamId, int expectedVersion, List<EventData> anEvents) {
 
-        Connection conn = this.connection();
+        Connection conn = connections.open();
 
         try {
             conn.setAutoCommit(false);
@@ -115,43 +94,42 @@ public class PgEventStorage implements EventStore {
         }
     }
 
-    public List<StreamId> listStreams() {
-        String sql = "select stream_name, max(stream_version) from jpg_stream_store_log " +
-                "group by stream_name ";
+    @Override
+    public EventStream fullEventStreamFor(StreamId anIdentity) {
+        String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
+                + "WHERE stream_name = ? ORDER BY stream_version";
 
-        try (Connection conn = this.connection();
-             PreparedStatement sttmt =conn.prepareStatement(tenant.prepare(sql))) {
+        try (Connection conn = connections.open();
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
+
+            sttmt.setString(1, anIdentity.streamName());
 
             try (ResultSet result = sttmt.executeQuery()) {
-                return this.buildEventStreamIds(result);
+                return this.buildEventStream(result);
             }
-
         } catch (Throwable t) {
             throw new EventStoreException(
-                    "Cannot query event for list streams because: "
+                    "Cannot query full event stream for: "
+                            + anIdentity.streamName()
+                            + " because: "
                             + t.getMessage(),
                     t);
         }
     }
 
     @Override
-    public List<StoreRecord> eventsSince(long position) {
-        String sql = "SELECT event_id, event_body, stream_name, stream_version FROM jpg_stream_store_log "
-                + "WHERE event_id > ? ORDER BY event_id";
+    public void deleteStream(StreamId anIdentity) {
+        String sql = "delete from jpg_stream_store_log WHERE stream_name = ? ";
 
-        try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
+        try (Connection conn = connections.open();
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql))) {
 
-            sttmt.setLong(1, position);
+            sttmt.setString(1, anIdentity.streamName());
+            sttmt.execute();
 
-            try (ResultSet result = sttmt.executeQuery()) {
-                return this.buildEventSequence(result);
-            }
         } catch (Throwable t) {
             throw new EventStoreException(
-                    "Cannot query event for sequence since: "
-                            + position
-                            + " because: "
+                    "Problem purging event store because: "
                             + t.getMessage(),
                     t);
         }
@@ -163,7 +141,7 @@ public class PgEventStorage implements EventStore {
         String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
                 + "WHERE stream_name = ? AND stream_version >= ? ORDER BY stream_version";
 
-        try (Connection conn = this.connection();
+        try (Connection conn = connections.open();
              PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
 
             sttmt.setString(1, anIdentity.streamName());
@@ -194,85 +172,6 @@ public class PgEventStorage implements EventStore {
         }
     }
 
-    @Override
-    public EventStream fullEventStreamFor(StreamId anIdentity) {
-        String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
-                + "WHERE stream_name = ? ORDER BY stream_version";
-
-        try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
-
-            sttmt.setString(1, anIdentity.streamName());
-
-            try (ResultSet result = sttmt.executeQuery()) {
-                return this.buildEventStream(result);
-            }
-        } catch (Throwable t) {
-            throw new EventStoreException(
-                    "Cannot query full event stream for: "
-                            + anIdentity.streamName()
-                            + " because: "
-                            + t.getMessage(),
-                    t);
-        }
-    }
-
-    @Override
-    public void deleteStream(StreamId anIdentity) {
-        String sql = "delete from jpg_stream_store_log WHERE stream_name = ? ";
-
-        try (Connection conn = this.connection();
-             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql))) {
-
-            sttmt.setString(1, anIdentity.streamName());
-            sttmt.execute();
-
-        } catch (Throwable t) {
-            throw new EventStoreException(
-                    "Problem purging event store because: "
-                            + t.getMessage(),
-                    t);
-        }
-    }
-
-    public void purge() {
-        String sql = "delete from jpg_stream_store_log";
-        try (Connection conn = this.connection();
-             Statement sttmt = conn.createStatement()) {
-
-            sttmt.execute(tenant.prepare(sql));
-
-        } catch (Throwable t) {
-            throw new EventStoreException(
-                    "Problem purging event store because: "
-                            + t.getMessage(),
-                    t);
-        }
-    }
-
-    public void createSchema() throws IOException {
-        String logSql = readResource("create_log.sql");
-
-        try (Connection conn = this.connection();
-             Statement sttmt = conn.createStatement()) {
-
-            if(dataSource.getCurrentSchema() != null){
-                String schemaSql = "create schema if not exists " + dataSource.getCurrentSchema();
-                sttmt.execute(tenant.prepare(schemaSql));
-            }
-
-            sttmt.execute(tenant.prepare(logSql));
-
-        } catch (Throwable t) {
-            throw new EventStoreException(
-                    "Problem creating event store schema because: "
-                            + t.getMessage(),
-                    t);
-        }
-    }
-
-
-
     private void appendEventStore(
             Connection conn,
             StreamId anIdentity,
@@ -282,7 +181,7 @@ public class PgEventStorage implements EventStore {
 
         PreparedStatement ps;
 
-        wrap(aEventData);
+        pack(aEventData);
 
         if (expectedVersion == ExpectedVersion.Any) {
             String sql = "INSERT INTO jpg_stream_store_log " +
@@ -309,35 +208,6 @@ public class PgEventStorage implements EventStore {
     }
 
     @SuppressWarnings("unchecked")
-    private List<StreamId> buildEventStreamIds(ResultSet result) throws SQLException {
-        List<StreamId> events = new ArrayList<>();
-
-        while (result.next()) {
-            String streamName = result.getString("stream_name");
-            events.add(new StreamId(streamName));
-        }
-
-        return events;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<StoreRecord> buildEventSequence(ResultSet result) throws Exception {
-
-        List<StoreRecord> events = new ArrayList<>();
-
-        while (result.next()) {
-            long eventId = result.getLong("event_id");
-            String eventBody = result.getString("event_body");
-            String streamName = result.getString("stream_name");
-            int streamVersion = result.getInt("stream_version");
-
-            events.add(new StoreRecord(eventId, eventBody, streamName, streamVersion));
-        }
-
-        return events;
-    }
-
-    @SuppressWarnings("unchecked")
     private EventStream buildEventStream(ResultSet result) throws Exception {
 
         List<EventData> events = new ArrayList<>();
@@ -348,39 +218,27 @@ public class PgEventStorage implements EventStore {
             version = result.getInt("stream_version");
             String eventBody = result.getString("event_body");
 
-            Type eventClass = new TypeToken<Map<String, String>>() {
-            }.getType();
-            Map<String, String> headers = serializer.fromJson(eventBody, eventClass);
-
-            Object body = unwrap(headers);
-
-            events.add(new EventData(headers, body));
+            EventData eventData = unpack(eventBody);
+            events.add(eventData);
         }
 
         return new DefaultEventStream(events, version);
     }
 
-    private Connection connection() {
-        Connection conn;
-
-        try {
-            conn = this.dataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException("Cannot acquire database conn.");
-        }
-
-        return conn;
-    }
-
-    private void wrap(EventData evt) {
+    private void pack(EventData evt) {
         Object body = evt.getBody();
         evt.setHeader("type", body.getClass().getName());
         evt.setHeader("data", serializer.toJson(body));
     }
 
-    private Object unwrap(Map<String, String> dataProps) {
-        String data = dataProps.get("data");
-        String type = dataProps.get("type");
+    private EventData unpack(String body) {
+        Type headersMap = new TypeToken<Map<String, String>>() {
+        }.getType();
+        Map<String, String> headers = serializer.fromJson(body, headersMap);
+
+        String data = headers.get("data");
+        String type = headers.get("type");
+
         Class<Object> eventClass;
         try {
             eventClass = (Class<Object>) Class.forName(type);
@@ -390,6 +248,8 @@ public class PgEventStorage implements EventStore {
             throw new IllegalStateException("Unable to load type: " + type);
         }
 
-        return serializer.fromJson(data, eventClass);
+        Object typedInstance = serializer.fromJson(data, eventClass);
+
+        return new EventData(headers, typedInstance);
     }
 }

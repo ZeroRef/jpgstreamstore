@@ -14,7 +14,7 @@ public class EventsSinceTest extends SuperScenario {
                 "INSERT INTO jpg_stream_store_log VALUES(3, '{}', 'D3', 1)"
         );
 
-        List<StoreRecord> list = store.eventsSince(0);
+        List<StoreRecord> list = store.advanced().eventsSince(0);
 
         assertEquals(1, list.size());
     }
@@ -27,7 +27,7 @@ public class EventsSinceTest extends SuperScenario {
                         "INSERT INTO jpg_stream_store_log VALUES(3, '{}', 'D3', 1);"
         );
 
-        List<StoreRecord> list = store.eventsSince(1);
+        List<StoreRecord> list = store.advanced().eventsSince(1);
 
         assertEquals(2, list.size());
     }

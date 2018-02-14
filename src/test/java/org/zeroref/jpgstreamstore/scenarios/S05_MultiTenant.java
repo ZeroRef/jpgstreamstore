@@ -13,11 +13,11 @@ public class S05_MultiTenant {
     public static void main(String[] args ) throws IOException {
         PgEventStorage auditStore = new PgEventStorage(
                 "jdbc:postgresql://localhost:5432/jpgstreamstore?currentSchema=audit");
-        auditStore.createSchema();
+        auditStore.advanced().createSchema();
 
         PgEventStorage billingStore = new PgEventStorage(
                 "jdbc:postgresql://localhost:5432/jpgstreamstore?currentSchema=billing");
-        billingStore.createSchema();
+        billingStore.advanced().createSchema();
 
 
 

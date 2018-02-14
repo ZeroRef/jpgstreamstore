@@ -14,4 +14,12 @@ public class PgSchemaTenant {
         return sqlStatement.replace("jpg_stream_store_log",
                 currentSchema + "." + "jpg_stream_store_log");
     }
+
+    public boolean applicable() {
+        return currentSchema != null;
+    }
+
+    public String getSchemaName() {
+        return currentSchema;
+    }
 }

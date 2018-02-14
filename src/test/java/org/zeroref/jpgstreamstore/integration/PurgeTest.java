@@ -15,7 +15,7 @@ public class PurgeTest extends SuperScenario {
                         "INSERT INTO jpg_stream_store_log VALUES(3, '{}', 'D3', 1);"
         );
 
-        store.purge();
+        store.advanced().purge();
 
         assertThat(storage.countRecords(), is(equalTo(0)));
     }

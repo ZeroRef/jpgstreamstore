@@ -29,8 +29,7 @@ public class MultiTenantTests {
         storage = new Storage(dataSource);
 
         store = new PgEventStorage(URL);
-        store.createSchema();
-
+        store.advanced().createSchema();
     }
 
     @Test
@@ -58,7 +57,7 @@ public class MultiTenantTests {
                 "INSERT INTO tenant01.jpg_stream_store_log VALUES(3, '{}', 'D3', 1)"
         );
 
-        List<StoreRecord> list = store.eventsSince(0);
+        List<StoreRecord> list = store.advanced().eventsSince(0);
 
         assertEquals(1, list.size());
     }
@@ -91,7 +90,7 @@ public class MultiTenantTests {
                 "INSERT INTO tenant01.jpg_stream_store_log VALUES(1, '{}', 'D1', 1);"
         );
 
-        List<StreamId> streamIds = store.listStreams();
+        List<StreamId> streamIds = store.advanced().listStreams();
 
         assertEquals(1, streamIds.size());
     }

@@ -17,7 +17,7 @@ public class S04_Replication {
 
     public static void main(String[] args ) throws Exception {
         PgEventStorage store = new PgEventStorage(PG_URL);
-        store.createSchema();
+        store.advanced().createSchema();
 
         try(Replication replication = new Replication(store)){
             Thread.sleep(1000);
@@ -49,7 +49,7 @@ public class S04_Replication {
 
                         System.out.println(" Checkpoint " + checkpoint);
 
-                        List<StoreRecord> delta = store.eventsSince(checkpoint);
+                        List<StoreRecord> delta = store.advanced().eventsSince(checkpoint);
 
                         if(delta.size() == 0)
                             continue;

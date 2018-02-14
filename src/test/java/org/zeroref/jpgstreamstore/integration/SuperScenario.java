@@ -26,7 +26,7 @@ public class SuperScenario {
         storage = new Storage(dataSource);
 
         store = new PgEventStorage(URL);
-        store.createSchema();
+        store.advanced().createSchema();
 
         connectionLeaksWatchDog = new ConnectionLeaksWatchDog(URL);
     }

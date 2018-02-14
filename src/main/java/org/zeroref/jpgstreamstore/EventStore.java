@@ -7,12 +7,11 @@ public interface EventStore {
 
     AppendResult appendToStream(StreamId streamId, List<EventData> anEvents);
 
-    EventStream eventStreamSince(StreamId anIdentity, int version);
+    void deleteStream(StreamId anIdentity);
 
     EventStream fullEventStreamFor(StreamId anIdentity);
 
-    void deleteStream(StreamId anIdentity);
+    EventStream eventStreamSince(StreamId anIdentity, int version);
 
-    List<StoreRecord> eventsSince(long position);
-
+    ManageEventStore advanced();
 }

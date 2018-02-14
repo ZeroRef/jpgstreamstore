@@ -16,7 +16,7 @@ public class ListStreamsTest extends SuperScenario {
                         "INSERT INTO jpg_stream_store_log VALUES(3, '{}', 'D3', 1);"
         );
 
-        List<StreamId> streamIds = store.listStreams();
+        List<StreamId> streamIds = store.advanced().listStreams();
 
         assertEquals(2, streamIds.size());
     }
