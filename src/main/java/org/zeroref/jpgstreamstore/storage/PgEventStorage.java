@@ -172,6 +172,31 @@ public class PgEventStorage implements EventStore {
         }
     }
 
+    @Override
+    public List<EventData> eventsSince(long position) {
+        String sql = "SELECT stream_version, event_body FROM jpg_stream_store_log "
+                + "WHERE event_id > ? ORDER BY event_id";
+
+        try (Connection conn = connections.open();
+             PreparedStatement sttmt = conn.prepareStatement(tenant.prepare(sql) )) {
+
+            sttmt.setLong(1, position);
+
+            try (ResultSet result = sttmt.executeQuery()) {
+                EventStream eventStream = this.buildEventStream(result);
+
+                return eventStream.events();
+            }
+        } catch (Throwable t) {
+            throw new EventStoreException(
+                    "Cannot query event for sequence since: "
+                            + position
+                            + " because: "
+                            + t.getMessage(),
+                    t);
+        }
+    }
+
     private void appendEventStore(
             Connection conn,
             StreamId anIdentity,

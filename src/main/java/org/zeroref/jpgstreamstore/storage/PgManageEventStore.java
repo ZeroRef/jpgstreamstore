@@ -40,7 +40,7 @@ public class PgManageEventStore implements ManageEventStore {
     }
 
     @Override
-    public List<StoreRecord> eventsSince(long position) {
+    public List<StoreRecord> fetchDelta(long position) {
         String sql = "SELECT event_id, event_body, stream_name, stream_version FROM jpg_stream_store_log "
                 + "WHERE event_id > ? ORDER BY event_id";
 

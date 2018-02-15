@@ -13,5 +13,7 @@ public interface EventStore {
 
     EventStream eventStreamSince(StreamId anIdentity, int version);
 
+    List<EventData> eventsSince(long position);
+
     ManageEventStore advanced();
 }

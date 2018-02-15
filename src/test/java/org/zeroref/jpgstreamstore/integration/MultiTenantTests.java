@@ -57,7 +57,7 @@ public class MultiTenantTests {
                 "INSERT INTO tenant01.jpg_stream_store_log VALUES(3, '{}', 'D3', 1)"
         );
 
-        List<StoreRecord> list = store.advanced().eventsSince(0);
+        List<StoreRecord> list = store.advanced().fetchDelta(0);
 
         assertEquals(1, list.size());
     }

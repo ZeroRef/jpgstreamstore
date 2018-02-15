@@ -49,7 +49,7 @@ public class S04_Replication {
 
                         System.out.println(" Checkpoint " + checkpoint);
 
-                        List<StoreRecord> delta = store.advanced().eventsSince(checkpoint);
+                        List<StoreRecord> delta = store.advanced().fetchDelta(checkpoint);
 
                         if(delta.size() == 0)
                             continue;

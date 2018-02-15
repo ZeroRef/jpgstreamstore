@@ -7,7 +7,7 @@ public interface ManageEventStore {
 
     List<StreamId> listStreams();
 
-    List<StoreRecord> eventsSince(long position);
+    List<StoreRecord> fetchDelta(long position);
 
     void purge();
 
